@@ -1,0 +1,275 @@
+{
+  "schema": 2,
+  "spec": "docs/specs/elysia-auto-cache",
+  "specSlug": "elysia-auto-cache",
+  "profile": "fast",
+  "status": "completed",
+  "authorized": true,
+  "preparedAt": "2026-09-22T16:56:08Z",
+  "activeWave": null,
+  "activeTaskIds": [],
+  "lastVerifiedSha": "no-git",
+  "lastQualityGate": {
+    "scope": "spec",
+    "command": "bun run typecheck && bun test",
+    "result": "pass",
+    "at": "2026-09-22T17:10:15Z",
+    "sha": "no-git"
+  },
+  "blockers": [],
+  "variances": [
+    {
+      "taskId": "F2-02",
+      "kind": "design-deviation",
+      "note": "valkey harness boots a STANDALONE node instead of the sibling's single-node cluster: the consumer connects with new Redis(endpoint), so standalone is the topology this code actually runs against; slot colocation is asserted from the key format instead",
+      "at": "2026-09-22T17:01:12Z"
+    },
+    {
+      "taskId": "F2-02",
+      "kind": "naming",
+      "note": "docker posture accepts REQUIRE_DOCKER (design) and REQUIRE_REDIS (org precedent in bearound src/testing/redis.ts) as equivalent",
+      "at": "2026-09-22T17:01:12Z"
+    },
+    {
+      "taskId": "F3-01",
+      "kind": "extra-files",
+      "note": "two internal plugin modules not in any write-set: src/plugin/request-state.ts (per-request scratch + context adapter) and src/plugin/tags.ts (shared tag precedence, used by both the macro and the invalidation hook)",
+      "at": "2026-09-22T17:05:20Z"
+    },
+    {
+      "taskId": "F1-04",
+      "kind": "bug-on-path",
+      "note": "bucket normalization only rounded numbers and ISO strings; query params arrive as STRINGS, so the very case the feature exists for (?to=<ms>) never collapsed. Found by the E2E suite, fixed in core/bucket.ts with two unit tests added",
+      "at": "2026-09-22T17:09:52Z"
+    }
+  ],
+  "checkpoints": [
+    {
+      "at": "2026-09-22T16:57:20Z",
+      "sha": "no-git",
+      "reason": "task",
+      "lastCompleted": "F0-01"
+    },
+    {
+      "at": "2026-09-22T16:59:57Z",
+      "sha": "no-git",
+      "reason": "wave",
+      "lastCompleted": "7"
+    }
+  ],
+  "specRevision": {
+    "requirements": {
+      "sha": "5868f4b5dfe82f49",
+      "reqs": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-008",
+        "REQ-009",
+        "REQ-010",
+        "REQ-011",
+        "REQ-012",
+        "REQ-013",
+        "REQ-014",
+        "REQ-015",
+        "REQ-016",
+        "REQ-017",
+        "REQ-018",
+        "REQ-019",
+        "REQ-020",
+        "REQ-021",
+        "REQ-022",
+        "REQ-023",
+        "REQ-024",
+        "REQ-025",
+        "REQ-026",
+        "REQ-027",
+        "REQ-028",
+        "REQ-029",
+        "REQ-030",
+        "REQ-031",
+        "REQ-032",
+        "REQ-033",
+        "REQ-034",
+        "REQ-035"
+      ]
+    },
+    "design": {
+      "sha": "733de6887e523fc3",
+      "sections": [
+        "1. Component design",
+        "2. API contracts (public TypeScript surface)",
+        "3. Data models — Redis key formats",
+        "4. Error handling",
+        "5. Test strategy",
+        "6. File-structure plan",
+        "7. Non-goals & packaging",
+        "8. Requirement coverage index",
+        "Effect on host routes (substitutes a route table — this library adds no HTTP routes of",
+        "Read path (hit / miss / single-flight join)",
+        "Write / invalidation path"
+      ]
+    },
+    "tasks": {
+      "sha": "1af097b70296e953"
+    },
+    "at": "2026-09-22T16:56:08Z"
+  },
+  "authorizedAt": "2026-09-22T16:56:21Z",
+  "sessionId": "75bdab4f-98fb-4d07-863f-7d34a0fbce35",
+  "validationLedger": {
+    "elysia-auto-cache::F0-01": {
+      "targeted": {
+        "command": "bun install && bunx tsc --noEmit -p tsconfig.json",
+        "result": "pass",
+        "fingerprint": "326cc2cfc71eae4f",
+        "gitSha": "no-git",
+        "at": "2026-09-22T16:57:20Z"
+      }
+    },
+    "elysia-auto-cache::F1-02": {
+      "targeted": {
+        "command": "bun test",
+        "result": "pass",
+        "fingerprint": "9eb677248366e8f9",
+        "gitSha": "no-git",
+        "at": "2026-09-22T16:59:56Z"
+      }
+    },
+    "elysia-auto-cache::F1-03": {
+      "targeted": {
+        "command": "bun test",
+        "result": "pass",
+        "fingerprint": "207d34d250a4f95b",
+        "gitSha": "no-git",
+        "at": "2026-09-22T16:59:57Z"
+      }
+    },
+    "elysia-auto-cache::F1-04": {
+      "targeted": {
+        "command": "bun test test/bucket.test.ts",
+        "result": "pass",
+        "fingerprint": "27cd85f8efa5e891",
+        "gitSha": "no-git",
+        "at": "2026-09-22T17:09:51Z"
+      }
+    },
+    "elysia-auto-cache::F1-05": {
+      "targeted": {
+        "command": "bun test",
+        "result": "pass",
+        "fingerprint": "fdb91fb9c6b8b478",
+        "gitSha": "no-git",
+        "at": "2026-09-22T16:59:57Z"
+      }
+    },
+    "elysia-auto-cache::F1-06": {
+      "targeted": {
+        "command": "bun test",
+        "result": "pass",
+        "fingerprint": "42eaaca13b746e03",
+        "gitSha": "no-git",
+        "at": "2026-09-22T16:59:57Z"
+      }
+    },
+    "elysia-auto-cache::F2-01": {
+      "targeted": {
+        "command": "bunx tsc --noEmit",
+        "result": "pass",
+        "fingerprint": "bf9421586f6a308d",
+        "gitSha": "no-git",
+        "at": "2026-09-22T17:01:11Z"
+      }
+    },
+    "elysia-auto-cache::F2-02": {
+      "targeted": {
+        "command": "bunx tsc --noEmit",
+        "result": "pass",
+        "fingerprint": "782b5f2460be794f",
+        "gitSha": "no-git",
+        "at": "2026-09-22T17:01:12Z"
+      }
+    },
+    "elysia-auto-cache::F2-03": {
+      "targeted": {
+        "command": "bun test test/redis-store.test.ts",
+        "result": "pass",
+        "fingerprint": "8e2a389b9a9fe6c0",
+        "gitSha": "no-git",
+        "at": "2026-09-22T17:02:04Z"
+      }
+    },
+    "elysia-auto-cache::F3-01": {
+      "targeted": {
+        "command": "bun test",
+        "result": "pass",
+        "fingerprint": "1b924acc8ae752ee",
+        "gitSha": "no-git",
+        "at": "2026-09-22T17:05:19Z"
+      }
+    },
+    "elysia-auto-cache::F3-02": {
+      "targeted": {
+        "command": "bun test",
+        "result": "pass",
+        "fingerprint": "53793a9a19b20e59",
+        "gitSha": "no-git",
+        "at": "2026-09-22T17:05:19Z"
+      }
+    },
+    "elysia-auto-cache::F3-03": {
+      "targeted": {
+        "command": "bun test",
+        "result": "pass",
+        "fingerprint": "fc19a132e5e2240d",
+        "gitSha": "no-git",
+        "at": "2026-09-22T17:05:19Z"
+      }
+    },
+    "elysia-auto-cache::F3-04": {
+      "targeted": {
+        "command": "bun test",
+        "result": "pass",
+        "fingerprint": "cddfff0ce8bef8b2",
+        "gitSha": "no-git",
+        "at": "2026-09-22T17:05:20Z"
+      }
+    },
+    "elysia-auto-cache::F4-01": {
+      "targeted": {
+        "command": "bun test test/e2e/",
+        "result": "pass",
+        "fingerprint": "368f015d9163832f",
+        "gitSha": "no-git",
+        "at": "2026-09-22T17:09:52Z"
+      }
+    }
+  },
+  "verification": {
+    "treeId": "789ed13c918b1e46",
+    "gitSha": "no-git",
+    "typecheck": {
+      "result": "passed",
+      "tests": 0,
+      "command": "bun run typecheck",
+      "at": "2026-09-22T17:10:15Z"
+    },
+    "unit": {
+      "result": "passed",
+      "tests": 70,
+      "command": "bun test (unit)",
+      "at": "2026-09-22T17:10:15Z"
+    },
+    "integration": {
+      "result": "passed",
+      "tests": 25,
+      "command": "bun test (valkey)",
+      "at": "2026-09-22T17:10:15Z"
+    }
+  },
+  "completedAt": "2026-09-22T17:10:15Z"
+}
