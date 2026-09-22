@@ -146,7 +146,10 @@ describe.skipIf(!canRunIntegration())('redisStore against a real Valkey', () => 
 
       // Not "throws a nice error" — returns, so the handler runs and the user is served.
       expect(await failing.get('before')).toBeNull();
-      expect(await failing.getGenerations('biz', ['x', 'y'])).toEqual([0, 0]);
+      // Never 0: generation 0 is where every pre-invalidation entry lives.
+      const generations = await failing.getGenerations('biz', ['x', 'y']);
+      expect(generations).toHaveLength(2);
+      expect(generations.every((g) => g < 0)).toBe(true);
       await failing.set('after', { status: 200, body: 1 }, 60);
       await failing.invalidateTag('biz', 'x');
       await failing.invalidateTags('biz', ['x', 'y']);

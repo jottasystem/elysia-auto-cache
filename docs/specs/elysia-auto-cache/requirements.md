@@ -123,6 +123,17 @@ exactly once, for the original (non-joined) request only.
 call triggers neither `onHit` nor `onMiss` (mirrors `with-auto-cache.ts:113-119`, where a
 joined caller returns without invoking `after()`).
 
+> **Amended 2026-09-22 (first host integration, BeAround ADR-0079).** A joiner now fires
+> `onHit`; `onMiss` is unchanged. The ported behavior made the joiner an invisible read: an
+> audit hook in `onHit` saw the leader and the later hits, never the second person to open
+> the same screen in the same instant. A joiner is served a stored response exactly like a
+> hit is, so it gets the hit's side effects. Test: `test/host-integration.test.ts`.
+>
+> Same amendment, three more findings: an unreadable generation returns a poison value, never
+> `0` (generation 0 holds every entry written before the first invalidation); a host `tags()`
+> returning `[]` means "no tags" and only `undefined` defers to the path derivation; a store
+> that throws is skipped for that request by the plugin itself.
+
 ## E. Bucket normalization
 
 ### REQ-016

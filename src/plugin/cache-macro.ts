@@ -87,7 +87,14 @@ export function createCacheMacro(options: AutoCacheOptions) {
         if (!READ_METHODS.has(method)) return undefined;
 
         const tags = resolveTags(options, { method, route: ctx.route }, config.tags);
-        const generations = await options.store.getGenerations(resolvedScope, tags);
+        // A store is supposed to fail open by itself, but a host-written one may not.
+        // A cache that cannot be read is skipped for this request, never a 500.
+        let generations: number[];
+        try {
+          generations = await options.store.getGenerations(resolvedScope, tags);
+        } catch {
+          return undefined;
+        }
 
         const rawParams = { ...(ctx.params ?? {}), ...(ctx.query ?? {}) } as Record<string, unknown>;
         const params = bucketSeconds === undefined ? rawParams : normalizeForBucket(rawParams, bucketSeconds);
@@ -101,6 +108,10 @@ export function createCacheMacro(options: AutoCacheOptions) {
           state.joined = true;
           const outcome = await inFlight;
           if (outcome.cacheable) {
+            // A joiner is served a stored response exactly like a hit is, so it gets
+            // the hit's side effects too. Without this, the second person to open the
+            // same screen in the same instant reads it with no audit record at all.
+            await config.onHit?.(ctx);
             ctx.set.status = outcome.value.status;
             return outcome.value.body;
           }
@@ -117,7 +128,14 @@ export function createCacheMacro(options: AutoCacheOptions) {
         flight.lead(key, () => gate.promise);
 
         // Bypass skips the READ only; the write below still refreshes the entry.
-        const cached = isBypassed(ctx.request, bypassHeader) ? null : await options.store.get(key);
+        let cached: CacheEnvelope | null = null;
+        if (!isBypassed(ctx.request, bypassHeader)) {
+          try {
+            cached = await options.store.get(key);
+          } catch {
+            cached = null;
+          }
+        }
         if (cached) {
           state.hit = true;
           state.settle(true, cached);
@@ -155,7 +173,13 @@ export function createCacheMacro(options: AutoCacheOptions) {
         }
 
         const envelope: CacheEnvelope = { status, body };
-        if (shouldStore(ttl)) await options.store.set(state.key, envelope, ttl);
+        if (shouldStore(ttl)) {
+          try {
+            await options.store.set(state.key, envelope, ttl);
+          } catch {
+            // Not stored; the response itself is fine and joiners still get it.
+          }
+        }
         state.settle?.(true, envelope);
         await config.onMiss?.(ctx);
       },

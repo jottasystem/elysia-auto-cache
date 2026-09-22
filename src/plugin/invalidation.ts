@@ -36,6 +36,10 @@ export function createInvalidationHook(options: AutoCacheOptions) {
 
     // Fail-open: a write that succeeded must not be reported as failed because
     // the cache could not be told about it.
-    await options.store.invalidateTags(scope, tags);
+    try {
+      await options.store.invalidateTags(scope, tags);
+    } catch {
+      // The TTL still bounds how long the stale entry can be served.
+    }
   };
 }

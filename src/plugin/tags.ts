@@ -10,7 +10,10 @@ import type { AutoCacheOptions, RouteInfo } from '../core/types.js';
  */
 export function resolveTags(options: AutoCacheOptions, route: RouteInfo, override?: string[]): string[] {
   if (override && override.length > 0) return override;
+  // `undefined` defers to the derivation; an empty array is an answer ("no tags").
+  // Treating [] as "no opinion" made every write on a route the host knows nothing
+  // about bump a path-derived tag, one Redis INCR per POST on the hottest paths.
   const fromHost = options.tags?.(route);
-  if (fromHost && fromHost.length > 0) return fromHost;
+  if (fromHost !== undefined) return fromHost;
   return deriveRouteTags(route.route);
 }

@@ -70,10 +70,16 @@ is deliberate: an entry with no expiry is the one that can outlive the fact it d
 key and the cache is write-only. `bucket: '60s'` rounds anything that looks like a
 timestamp or an ISO-8601 datetime down to the window boundary, so the key repeats.
 
-**`onHit` / `onMiss`** — fire on their respective paths, and neither fires for a request
-that joined another's in-flight work. This exists so a request-scoped side effect (an
-audit row, a PII access record) survives a cache hit. The library does not know or care
+**`onHit` / `onMiss`** — `onHit` fires for every request served a stored response: a hit,
+and also a request that joined another's in-flight miss (it receives the same stored
+response, so it gets the same side effects). `onMiss` fires once, for the request that ran
+the handler. This exists so a request-scoped side effect (an audit row, a PII access record)
+survives the cache: every reader is seen exactly once. The library does not know or care
 what you run inside them.
+
+**`tags` (plugin option)** — return the tags for a route, `[]` for "this route has no tags",
+or `undefined` to fall back to the path derivation. An empty array is an answer: a write on
+a route with no tags touches Redis not at all.
 
 ### Escape hatches
 
@@ -129,10 +135,12 @@ cache is merely cold.
 | | |
 |---|---|
 | Redis down, slow, or serving garbage | the handler runs; the request is never failed |
+| a host-written store that throws | same: the cache is skipped for that request, never a 500 |
+| a generation that cannot be read | a poison generation: a miss, never generation 0 (which would re-open invalidated entries) |
 | `scope()` returns `null` | nothing is read and nothing is written — fail-closed, no cross-tenant leak |
 | response carries `Set-Cookie` | never cached |
 | streaming / non-2xx response | never cached (404 only via `cacheNotFound`) |
-| 10 concurrent requests, cold key | one handler execution; the rest join it |
+| 10 concurrent requests, cold key | one handler execution; the rest join it, and each joiner fires `onHit` |
 | leader's response not shareable | joiners run the handler themselves |
 | headers set by the handler | **not** replayed on a hit — only status and body are stored |
 

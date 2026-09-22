@@ -60,8 +60,11 @@ export interface AutoCacheContext {
  */
 export type ScopeFn = (ctx: AutoCacheContext) => string | null | undefined;
 
-/** Overrides the default path-derived tags for a route. */
-export type TagsFn = (route: RouteInfo) => string[];
+/**
+ * Overrides the default path-derived tags for a route. Return `undefined` to fall
+ * back to the derivation; an empty array means the route has no tags at all.
+ */
+export type TagsFn = (route: RouteInfo) => string[] | undefined;
 
 export interface AutoCacheOptions {
   store: CacheStore;
@@ -90,6 +93,7 @@ export interface CacheRouteConfig<TResult = unknown> {
   bucket?: string;
   /** Opt in to caching a 404. Every other non-2xx is never cached. */
   cacheNotFound?: boolean;
+  /** Fires for every request served a stored response: a hit, or a joiner of an in-flight miss. */
   onHit?: (ctx: AutoCacheContext) => void | Promise<void>;
   onMiss?: (ctx: AutoCacheContext) => void | Promise<void>;
 }
