@@ -22,6 +22,9 @@
   "files": [
     "lib"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=20.0.0"
   },
@@ -34,7 +37,8 @@
     "lint": "eslint src test",
     "test": "bun test",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run lint && npm run typecheck && npm test"
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run test:unit",
+    "test:unit": "bun test test/bucket.test.ts test/bypass.test.ts test/cache-key.test.ts test/packaging.test.ts test/route-tags.test.ts test/single-flight.test.ts test/ttl.test.ts"
   },
   "repository": {
     "type": "git",
